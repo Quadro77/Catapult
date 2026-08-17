@@ -1,0 +1,15 @@
+export const SOUND_FILES: { key: string; file: string }[] = [
+  { key: 'sfx-pull', file: 'assets/sounds/pull.mp3' },
+  { key: 'sfx-whip', file: 'assets/sounds/whip-crack.mp3' },
+  { key: 'sfx-launch', file: 'assets/sounds/launch.mp3' },
+  { key: 'sfx-splat', file: 'assets/sounds/splat.mp3' },
+  { key: 'sfx-catch', file: 'assets/sounds/catch.mp3' },
+  { key: 'sfx-bonus', file: 'assets/sounds/bonus.mp3' },
+  { key: 'sfx-pop', file: 'assets/sounds/pop.mp3' },
+  { key: 'sfx-catcher', file: 'assets/sounds/dog-catcher.mp3' },
+  { key: 'sfx-lose', file: 'assets/sounds/loose-one-point.mp3' },
+  { key: 'sfx-gameover', file: 'assets/sounds/gameover.mp3' },
+  { key: 'sfx-next', file: 'assets/sounds/next-level.mp3' },
+  { key: 'music-title', file: 'assets/sounds/title-page-music.mp3' },
+  { key: 'music-play', file: 'assets/sounds/in-game-music.mp3' },
+]

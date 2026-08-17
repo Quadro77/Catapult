@@ -1,0 +1,10 @@
+export const GAME_WIDTH = 1280
+export const GAME_HEIGHT = 720
+export const GROUND_Y = 686
+export const WALL_LEFT = 578
+export const WALL_RIGHT = 1110
+export const WALL_TOP = 0
+export const MIN_PULL = 28
+export const POUCH_HIT_R = 72
+export const RESULT_MS = 850
+export const GHOST_DOTS = 5

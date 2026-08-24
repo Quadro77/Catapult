@@ -29,10 +29,10 @@ export type Loadout = {
   color: number
 }
 
-const POWER_PER_RANK = 0.07
-const STRETCH_PER_RANK = 0.06
-const AIM_PER_RANK = 0.14
-const SOFT_PAD_PER_RANK = 1.8
+const POWER_PER_RANK = 0.035
+const STRETCH_PER_RANK = 0.03
+const AIM_PER_RANK = 0.07
+const SOFT_PAD_PER_RANK = 0.9
 
 export function loadout(input: {
   cat: LoadoutCat

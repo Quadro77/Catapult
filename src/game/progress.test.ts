@@ -8,6 +8,7 @@ import {
   equippedLevel,
   equippedLevelId,
   garageLevels,
+  loadPlayer,
   ownsLevel,
   savePlayer,
   selectLevel,
@@ -88,5 +89,16 @@ describe('garage levels', () => {
     const level = loadLevel()
     assert.equal(level.id, 'adobe')
     assert.equal(level.bgKey, LEVEL_BY_ID.adobe?.bgKey)
+  })
+})
+
+describe('default wallet', () => {
+  beforeEach(() => {
+    memoryStore()
+    setProject(defaultProject())
+  })
+
+  it('starts a missing save at zero coins', () => {
+    assert.equal(loadPlayer().coins, 0)
   })
 })

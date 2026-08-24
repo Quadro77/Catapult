@@ -49,8 +49,27 @@ The projectile you equip. Mass, drag, size, and how much a catch pays.
 _Avoid_: sprite, character, projectile
 
 **Upgrade**:
-A purchased rank: power, stretch, aim, soft paws, or extra lives.
+A purchased rank: power, stretch, aim, soft paws, or nine lives.
 _Avoid_: perk, skill, buff, CatapultMods
+
+**Rank**:
+How far one Upgrade has been bought.
+_Avoid_: level
+
+**Power**:
+A sling rank. How hard a launch is.
+
+**Stretch**:
+A sling rank. How long a pull may be.
+
+**Aim**:
+A sling rank. How far the ghost trail looks.
+
+**Soft paws**:
+A sling rank. Extra slop around an occupied window.
+
+**Nine lives**:
+A sling rank. Extra lives at the start of a run.
 
 **Loadout**:
 This cat, these upgrade ranks, and this level's sling, finished into the numbers a shot and a run use.

@@ -17,10 +17,10 @@ export type CoinPack = {
 }
 
 export const UPGRADES: UpgradeDef[] = [
-  { id: 'power', name: 'POWER', blurb: 'Harder launches.', max: 12, baseCost: 60, growth: 1.62 },
-  { id: 'stretch', name: 'STRETCH', blurb: 'Longer pull.', max: 10, baseCost: 80, growth: 1.58 },
-  { id: 'aim', name: 'AIM', blurb: 'Longer ghost trail.', max: 8, baseCost: 45, growth: 1.55 },
-  { id: 'soft', name: 'SOFT PAWS', blurb: 'Forgiving windows.', max: 8, baseCost: 70, growth: 1.6 },
+  { id: 'power', name: 'POWER', blurb: 'Harder launches. +3.5% each.', max: 10, baseCost: 120, growth: 1.62 },
+  { id: 'stretch', name: 'STRETCH', blurb: 'Longer pull. +3% each.', max: 10, baseCost: 160, growth: 1.58 },
+  { id: 'aim', name: 'AIM', blurb: 'Longer ghost trail. +7% each.', max: 10, baseCost: 90, growth: 1.55 },
+  { id: 'soft', name: 'SOFT PAWS', blurb: 'Bigger window hits. Catchers too.', max: 10, baseCost: 140, growth: 1.6 },
   { id: 'lives', name: 'NINE LIVES', blurb: 'Start with extra lives.', max: 5, baseCost: 280, growth: 1.75 },
 ]
 

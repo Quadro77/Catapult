@@ -25,10 +25,24 @@ describe('loadout', () => {
       sling,
       baseLives: 3,
     })
-    assert.equal(ready.power, 8 * (1 + 0.07 * 2))
-    assert.equal(ready.maxPull, 100 * (1 + 0.06 * 1))
-    assert.equal(ready.ghostT, 0.3 * (1 + 0.14 * 1))
-    assert.equal(ready.hitPad, 3 * 1.8)
+    assert.equal(ready.power, 8.56)
+    assert.equal(ready.maxPull, 103)
+    assert.equal(ready.ghostT, 0.321)
+    assert.equal(ready.hitPad, 2.7)
+    assert.equal(ready.lives, 4)
+  })
+
+  it('caps power stretch aim and soft paws at todays old rank five', () => {
+    const ready = loadout({
+      cat,
+      ranks: { power: 10, stretch: 10, aim: 10, soft: 10, lives: 1 },
+      sling,
+      baseLives: 3,
+    })
+    assert.equal(ready.power, 10.8)
+    assert.equal(ready.maxPull, 130)
+    assert.equal(ready.ghostT, 0.51)
+    assert.equal(ready.hitPad, 9)
     assert.equal(ready.lives, 4)
   })
 })

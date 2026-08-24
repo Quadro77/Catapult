@@ -20,7 +20,7 @@ const coinFns = new Set<(n: number) => void>()
 
 function blank(): PlayerSave {
   return {
-    coins: 80,
+    coins: 0,
     ownedCats: [DEFAULT_CAT.id],
     catId: DEFAULT_CAT.id,
     levels: {},

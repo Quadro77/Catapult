@@ -2,16 +2,16 @@ import { LEVEL_01, LEVEL_BY_ID, LEVEL_LIST } from './levels/index.ts'
 import type { CustomArt, LevelDef, PlacedImage, ProjectSave, TitleButton } from '../types.ts'
 
 export const DEFAULT_BUTTONS: TitleButton[] = [
-  { id: 'play', x: 640, y: 430, rotation: 0 },
-  { id: 'editor', x: 640, y: 530, rotation: 0 },
+  { id: 'play', x: 644, y: 611, rotation: 0 },
+  { id: 'editor', x: 216, y: 66, rotation: 0 },
 ]
 
 export const DEFAULT_TITLE: PlacedImage[] = [
-  { id: 'bg', key: 'bg-building', x: 640, y: 360, rotation: 0, scale: 0.714, depth: 1 },
-  { id: 'title', key: 'ui-title', x: 640, y: 168, rotation: 0, scale: 0.36, depth: 10 },
-  { id: 'lady', key: 'title-lady', x: 150, y: 500, rotation: 0, scale: 0.42, depth: 12 },
-  { id: 'sling', key: 'title-sling', x: 160, y: 620, rotation: 0, scale: 0.17, depth: 12 },
-  { id: 'flycat', key: 'title-cat-fly', x: 280, y: 520, rotation: -12, scale: 0.28, depth: 13 },
+  { id: 'bg', key: 'bg-building', x: 643, y: 364, rotation: 0, scale: 0.714, depth: 1 },
+  { id: 'title', key: 'ui-title', x: 654, y: 165, rotation: 0, scale: 0.5200542786151454, depth: 10 },
+  { id: 'lady', key: 'lady', x: 1032, y: 476, rotation: 0, scale: 0.721355356629047, depth: 12 },
+  { id: 'sling', key: 'slingshot', x: 217, y: 488, rotation: 0, scale: 0.35924657794500753, depth: 12 },
+  { id: 'img-1786865887876', key: 'cat-fly', x: 646, y: 385, rotation: 0, scale: 0.4, depth: 15 },
 ]
 
 let cached: ProjectSave | null = null

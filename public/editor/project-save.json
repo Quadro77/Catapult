@@ -69,6 +69,7 @@
       "blurb": "The first stoop.",
       "lives": 3,
       "bonusEvery": 9,
+      "angerLimit": 6,
       "building": {
         "floors": 3,
         "bays": 3,
@@ -79,6 +80,8 @@
         "windows": [
           {
             "id": "f0b0",
+            "floor": 0,
+            "bay": 0,
             "nx": 0.5421875,
             "ny": 0.11527777777777778,
             "nw": 0.06328125,
@@ -86,6 +89,8 @@
           },
           {
             "id": "f0b1",
+            "floor": 0,
+            "bay": 1,
             "nx": 0.69296875,
             "ny": 0.10833333333333334,
             "nw": 0.065625,
@@ -93,6 +98,8 @@
           },
           {
             "id": "f0b2",
+            "floor": 0,
+            "bay": 2,
             "nx": 0.85078125,
             "ny": 0.10694444444444444,
             "nw": 0.06640625,
@@ -100,6 +107,8 @@
           },
           {
             "id": "f1b0",
+            "floor": 1,
+            "bay": 0,
             "nx": 0.5421875,
             "ny": 0.35,
             "nw": 0.065625,
@@ -107,6 +116,8 @@
           },
           {
             "id": "f1b1",
+            "floor": 1,
+            "bay": 1,
             "nx": 0.69140625,
             "ny": 0.35,
             "nw": 0.0671875,
@@ -114,6 +125,8 @@
           },
           {
             "id": "f1b2",
+            "floor": 1,
+            "bay": 2,
             "nx": 0.84921875,
             "ny": 0.3486111111111111,
             "nw": 0.0671875,
@@ -121,6 +134,8 @@
           },
           {
             "id": "f2b0",
+            "floor": 2,
+            "bay": 0,
             "nx": 0.54453125,
             "ny": 0.5805555555555556,
             "nw": 0.06015625,
@@ -128,6 +143,8 @@
           },
           {
             "id": "f2b1",
+            "floor": 2,
+            "bay": 1,
             "nx": 0.6921875,
             "ny": 0.5847222222222223,
             "nw": 0.0640625,
@@ -135,6 +152,8 @@
           },
           {
             "id": "f2b2",
+            "floor": 2,
+            "bay": 2,
             "nx": 0.84765625,
             "ny": 0.5791666666666667,
             "nw": 0.06640625,
@@ -151,9 +170,11 @@
           2000,
           3200
         ],
-        "maxConcurrent": 2,
+        "maxConcurrent": 3,
+        "catcherChance": 0.4,
         "pool": [
-          "oldLady"
+          "oldLady",
+          "dogCatcher"
         ]
       },
       "slingshot": {
@@ -161,17 +182,550 @@
           "x": 243,
           "y": 600
         },
-        "maxPull": 148,
+        "maxPull": 132,
         "power": 8,
-        "gravity": 480,
-        "ghostT": 0.3
+        "gravity": 1500,
+        "ghostT": 0.25
       },
       "bounds": {
         "groundY": 686,
         "wallRight": 1257,
         "wallTop": 0
+      }
+    },
+    {
+      "id": "adobe",
+      "name": "Adobe",
+      "bgKey": "bg-adobe",
+      "price": 350,
+      "blurb": "Dust and shutters.",
+      "lives": 3,
+      "bonusEvery": 14,
+      "angerLimit": 5,
+      "building": {
+        "floors": 2,
+        "bays": 3,
+        "x": 0,
+        "y": 0,
+        "w": 1280,
+        "h": 720,
+        "windows": [
+          {
+            "id": "f0b0",
+            "floor": 0,
+            "bay": 0,
+            "nx": 0.5625,
+            "ny": 0.3194444444444444,
+            "nw": 0.05625,
+            "nh": 0.12222222222222222
+          },
+          {
+            "id": "f0b1",
+            "floor": 0,
+            "bay": 1,
+            "nx": 0.671875,
+            "ny": 0.3194444444444444,
+            "nw": 0.05625,
+            "nh": 0.12222222222222222
+          },
+          {
+            "id": "f0b2",
+            "floor": 0,
+            "bay": 2,
+            "nx": 0.78125,
+            "ny": 0.3194444444444444,
+            "nw": 0.05625,
+            "nh": 0.12222222222222222
+          },
+          {
+            "id": "f1b0",
+            "floor": 1,
+            "bay": 0,
+            "nx": 0.5625,
+            "ny": 0.5972222222222222,
+            "nw": 0.05625,
+            "nh": 0.1388888888888889
+          },
+          {
+            "id": "f1b2",
+            "floor": 1,
+            "bay": 2,
+            "nx": 0.78125,
+            "ny": 0.5972222222222222,
+            "nw": 0.05625,
+            "nh": 0.1388888888888889
+          }
+        ]
       },
-      "angerLimit": 6
+      "director": {
+        "popInterval": [
+          1900,
+          3420
+        ],
+        "visibleMs": [
+          1900,
+          3040
+        ],
+        "maxConcurrent": 2,
+        "catcherChance": 0.45,
+        "pool": [
+          "oldLady",
+          "dogCatcher"
+        ]
+      },
+      "slingshot": {
+        "origin": {
+          "x": 200,
+          "y": 600
+        },
+        "maxPull": 132,
+        "power": 8,
+        "gravity": 1600,
+        "ghostT": 0.25
+      },
+      "bounds": {
+        "groundY": 686,
+        "wallRight": 1240,
+        "wallTop": 0
+      }
+    },
+    {
+      "id": "machiya",
+      "name": "Machiya",
+      "bgKey": "bg-machiya",
+      "price": 900,
+      "blurb": "Paper and lanterns.",
+      "lives": 3,
+      "bonusEvery": 19,
+      "angerLimit": 4,
+      "building": {
+        "floors": 2,
+        "bays": 3,
+        "x": 0,
+        "y": 0,
+        "w": 1280,
+        "h": 720,
+        "windows": [
+          {
+            "id": "f0b0",
+            "floor": 0,
+            "bay": 0,
+            "nx": 0.4375,
+            "ny": 0.3055555555555556,
+            "nw": 0.0625,
+            "nh": 0.125
+          },
+          {
+            "id": "f0b1",
+            "floor": 0,
+            "bay": 1,
+            "nx": 0.5625,
+            "ny": 0.3055555555555556,
+            "nw": 0.0625,
+            "nh": 0.125
+          },
+          {
+            "id": "f0b2",
+            "floor": 0,
+            "bay": 2,
+            "nx": 0.6875,
+            "ny": 0.3055555555555556,
+            "nw": 0.0625,
+            "nh": 0.125
+          },
+          {
+            "id": "f1b0",
+            "floor": 1,
+            "bay": 0,
+            "nx": 0.4375,
+            "ny": 0.5833333333333334,
+            "nw": 0.0625,
+            "nh": 0.1388888888888889
+          },
+          {
+            "id": "f1b1",
+            "floor": 1,
+            "bay": 1,
+            "nx": 0.5625,
+            "ny": 0.5833333333333334,
+            "nw": 0.0625,
+            "nh": 0.1388888888888889
+          },
+          {
+            "id": "f1b2",
+            "floor": 1,
+            "bay": 2,
+            "nx": 0.6875,
+            "ny": 0.5833333333333334,
+            "nw": 0.0625,
+            "nh": 0.1388888888888889
+          }
+        ]
+      },
+      "director": {
+        "popInterval": [
+          1800,
+          3240
+        ],
+        "visibleMs": [
+          1800,
+          2880
+        ],
+        "maxConcurrent": 2,
+        "catcherChance": 0.5,
+        "pool": [
+          "oldLady",
+          "dogCatcher"
+        ]
+      },
+      "slingshot": {
+        "origin": {
+          "x": 200,
+          "y": 600
+        },
+        "maxPull": 132,
+        "power": 8,
+        "gravity": 1700,
+        "ghostT": 0.25
+      },
+      "bounds": {
+        "groundY": 686,
+        "wallRight": 1240,
+        "wallTop": 0
+      }
+    },
+    {
+      "id": "chalet",
+      "name": "Chalet",
+      "bgKey": "bg-chalet",
+      "price": 2200,
+      "blurb": "Snow on the eaves.",
+      "lives": 3,
+      "bonusEvery": 24,
+      "angerLimit": 3,
+      "building": {
+        "floors": 2,
+        "bays": 3,
+        "x": 0,
+        "y": 0,
+        "w": 1280,
+        "h": 720,
+        "windows": [
+          {
+            "id": "f0b0",
+            "floor": 0,
+            "bay": 0,
+            "nx": 0.484375,
+            "ny": 0.2777777777777778,
+            "nw": 0.059375,
+            "nh": 0.125
+          },
+          {
+            "id": "f0b1",
+            "floor": 0,
+            "bay": 1,
+            "nx": 0.609375,
+            "ny": 0.2777777777777778,
+            "nw": 0.059375,
+            "nh": 0.125
+          },
+          {
+            "id": "f0b2",
+            "floor": 0,
+            "bay": 2,
+            "nx": 0.734375,
+            "ny": 0.2777777777777778,
+            "nw": 0.059375,
+            "nh": 0.125
+          },
+          {
+            "id": "f1b0",
+            "floor": 1,
+            "bay": 0,
+            "nx": 0.484375,
+            "ny": 0.5555555555555556,
+            "nw": 0.059375,
+            "nh": 0.1388888888888889
+          },
+          {
+            "id": "f1b1",
+            "floor": 1,
+            "bay": 1,
+            "nx": 0.609375,
+            "ny": 0.5555555555555556,
+            "nw": 0.059375,
+            "nh": 0.1388888888888889
+          },
+          {
+            "id": "f1b2",
+            "floor": 1,
+            "bay": 2,
+            "nx": 0.734375,
+            "ny": 0.5555555555555556,
+            "nw": 0.059375,
+            "nh": 0.1388888888888889
+          }
+        ]
+      },
+      "director": {
+        "popInterval": [
+          1700,
+          3060
+        ],
+        "visibleMs": [
+          1700,
+          2720
+        ],
+        "maxConcurrent": 1,
+        "catcherChance": 0.55,
+        "pool": [
+          "oldLady",
+          "dogCatcher"
+        ]
+      },
+      "slingshot": {
+        "origin": {
+          "x": 200,
+          "y": 600
+        },
+        "maxPull": 132,
+        "power": 8,
+        "gravity": 1800,
+        "ghostT": 0.25
+      },
+      "bounds": {
+        "groundY": 686,
+        "wallRight": 1240,
+        "wallTop": 0
+      }
+    },
+    {
+      "id": "chateau",
+      "name": "Chateau",
+      "bgKey": "bg-chateau",
+      "price": 5500,
+      "blurb": "Blue shutters.",
+      "lives": 3,
+      "bonusEvery": 29,
+      "angerLimit": 2,
+      "building": {
+        "floors": 2,
+        "bays": 4,
+        "x": 0,
+        "y": 0,
+        "w": 1280,
+        "h": 720,
+        "windows": [
+          {
+            "id": "f0b0",
+            "floor": 0,
+            "bay": 0,
+            "nx": 0.4375,
+            "ny": 0.2916666666666667,
+            "nw": 0.0546875,
+            "nh": 0.12222222222222222
+          },
+          {
+            "id": "f0b1",
+            "floor": 0,
+            "bay": 1,
+            "nx": 0.546875,
+            "ny": 0.2916666666666667,
+            "nw": 0.0546875,
+            "nh": 0.12222222222222222
+          },
+          {
+            "id": "f0b2",
+            "floor": 0,
+            "bay": 2,
+            "nx": 0.65625,
+            "ny": 0.2916666666666667,
+            "nw": 0.0546875,
+            "nh": 0.12222222222222222
+          },
+          {
+            "id": "f0b3",
+            "floor": 0,
+            "bay": 3,
+            "nx": 0.765625,
+            "ny": 0.2916666666666667,
+            "nw": 0.0546875,
+            "nh": 0.12222222222222222
+          },
+          {
+            "id": "f1b0",
+            "floor": 1,
+            "bay": 0,
+            "nx": 0.4375,
+            "ny": 0.5694444444444444,
+            "nw": 0.0546875,
+            "nh": 0.1361111111111111
+          },
+          {
+            "id": "f1b1",
+            "floor": 1,
+            "bay": 1,
+            "nx": 0.546875,
+            "ny": 0.5694444444444444,
+            "nw": 0.0546875,
+            "nh": 0.1361111111111111
+          },
+          {
+            "id": "f1b2",
+            "floor": 1,
+            "bay": 2,
+            "nx": 0.65625,
+            "ny": 0.5694444444444444,
+            "nw": 0.0546875,
+            "nh": 0.1361111111111111
+          },
+          {
+            "id": "f1b3",
+            "floor": 1,
+            "bay": 3,
+            "nx": 0.765625,
+            "ny": 0.5694444444444444,
+            "nw": 0.0546875,
+            "nh": 0.1361111111111111
+          }
+        ]
+      },
+      "director": {
+        "popInterval": [
+          1600,
+          2880
+        ],
+        "visibleMs": [
+          1600,
+          2560
+        ],
+        "maxConcurrent": 1,
+        "catcherChance": 0.6,
+        "pool": [
+          "oldLady",
+          "dogCatcher"
+        ]
+      },
+      "slingshot": {
+        "origin": {
+          "x": 200,
+          "y": 600
+        },
+        "maxPull": 132,
+        "power": 8,
+        "gravity": 1900,
+        "ghostT": 0.25
+      },
+      "bounds": {
+        "groundY": 686,
+        "wallRight": 1240,
+        "wallTop": 0
+      }
+    },
+    {
+      "id": "palace",
+      "name": "Palace",
+      "bgKey": "bg-palace",
+      "price": 14000,
+      "blurb": "Red columns.",
+      "lives": 3,
+      "bonusEvery": 34,
+      "angerLimit": 1,
+      "building": {
+        "floors": 2,
+        "bays": 3,
+        "x": 0,
+        "y": 0,
+        "w": 1280,
+        "h": 720,
+        "windows": [
+          {
+            "id": "f0b0",
+            "floor": 0,
+            "bay": 0,
+            "nx": 0.390625,
+            "ny": 0.3333333333333333,
+            "nw": 0.065625,
+            "nh": 0.12777777777777777
+          },
+          {
+            "id": "f0b1",
+            "floor": 0,
+            "bay": 1,
+            "nx": 0.53125,
+            "ny": 0.3333333333333333,
+            "nw": 0.065625,
+            "nh": 0.12777777777777777
+          },
+          {
+            "id": "f0b2",
+            "floor": 0,
+            "bay": 2,
+            "nx": 0.671875,
+            "ny": 0.3333333333333333,
+            "nw": 0.065625,
+            "nh": 0.12777777777777777
+          },
+          {
+            "id": "f1b0",
+            "floor": 1,
+            "bay": 0,
+            "nx": 0.390625,
+            "ny": 0.5972222222222222,
+            "nw": 0.065625,
+            "nh": 0.14444444444444443
+          },
+          {
+            "id": "f1b1",
+            "floor": 1,
+            "bay": 1,
+            "nx": 0.53125,
+            "ny": 0.5972222222222222,
+            "nw": 0.065625,
+            "nh": 0.14444444444444443
+          },
+          {
+            "id": "f1b2",
+            "floor": 1,
+            "bay": 2,
+            "nx": 0.671875,
+            "ny": 0.5972222222222222,
+            "nw": 0.065625,
+            "nh": 0.14444444444444443
+          }
+        ]
+      },
+      "director": {
+        "popInterval": [
+          1500,
+          2700
+        ],
+        "visibleMs": [
+          1500,
+          2400
+        ],
+        "maxConcurrent": 1,
+        "catcherChance": 0.65,
+        "pool": [
+          "oldLady",
+          "dogCatcher"
+        ]
+      },
+      "slingshot": {
+        "origin": {
+          "x": 200,
+          "y": 600
+        },
+        "maxPull": 132,
+        "power": 8,
+        "gravity": 2000,
+        "ghostT": 0.25
+      },
+      "bounds": {
+        "groundY": 686,
+        "wallRight": 1240,
+        "wallTop": 0
+      }
     }
   ],
   "activeLevelId": "brownstone-1",

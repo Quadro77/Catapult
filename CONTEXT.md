@@ -41,8 +41,8 @@ Someone who appears in a window for a while: an old lady or a dog catcher. Occup
 _Avoid_: sprite, enemy, NPC, WindowSlot
 
 **Occupancy**:
-Who is in which window, for how long, what a hit means, and what a miss means.
-_Avoid_: Director, WindowSlot, Building
+Who is in which window, for how long, what a hit means, and what a miss means. The Level sets how many old ladies may occupy. A Catcher does not count toward that number.
+_Avoid_: Director, WindowSlot, Building, at once, preset
 
 **Cat**:
 The projectile you equip. Mass, drag, size, and how much a catch pays.

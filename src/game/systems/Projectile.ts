@@ -1,11 +1,13 @@
-import type { CatDef } from '../types.ts'
+import type { Loadout } from '../loadout.ts'
 import { hasTex } from './chroma.ts'
 
 export class Projectile {
   readonly sprite: Phaser.Physics.Arcade.Image
   resolved = false
+  private ready: Loadout
 
-  constructor(scene: Phaser.Scene, cat: CatDef, x: number, y: number) {
+  constructor(scene: Phaser.Scene, ready: Loadout, x: number, y: number) {
+    this.ready = ready
     this.sprite = scene.physics.add.image(x, y, 'cat')
     this.sprite.setDepth(20)
     this.showIdle()
@@ -13,7 +15,7 @@ export class Projectile {
     body.setAllowGravity(false)
     body.setCircle(18, 14, 14)
     body.setBounce(0)
-    this.sprite.setDrag(cat.drag)
+    this.sprite.setDrag(ready.drag)
   }
 
   launch(x: number, y: number, vx: number, vy: number): void {
@@ -23,14 +25,16 @@ export class Projectile {
     this.sprite.setScale(1)
     this.sprite.setRotation(0)
     this.sprite.setPosition(x, y)
+    this.paint()
     if (hasTex(this.sprite.scene, 'cat-fly')) {
       this.sprite.setTexture('cat-fly')
-      this.sprite.setDisplaySize(78, 58)
+      const fly = Math.round(this.ready.radius * 3.5)
+      this.sprite.setDisplaySize(fly, Math.round(fly * 0.74))
     }
     const body = this.sprite.body as Phaser.Physics.Arcade.Body
     body.enable = true
     body.setAllowGravity(true)
-    body.setVelocity(vx, vy)
+    body.setVelocity(vx / this.ready.mass, vy / this.ready.mass)
   }
 
   park(x: number, y: number): void {
@@ -71,8 +75,15 @@ export class Projectile {
 
   private showIdle(): void {
     this.sprite.setTexture('cat')
-    this.sprite.setDisplaySize(70, 70)
+    const size = Math.round(this.ready.radius * 3.18)
+    this.sprite.setDisplaySize(size, size)
+    this.paint()
     this.idleScale = this.sprite.scaleX
+  }
+
+  private paint(): void {
+    if (this.ready.color === 0xf28c28) this.sprite.clearTint()
+    else this.sprite.setTint(this.ready.color)
   }
 
   get x(): number {

@@ -1,4 +1,5 @@
 import { ART_FILES } from '../data/art.ts'
+import { bootAds } from '../systems/ads.ts'
 import { loadAudioPrefs } from '../systems/Audio.ts'
 import { loadProjectAsync } from '../data/project.ts'
 import { SOUND_FILES } from '../data/sounds.ts'
@@ -21,6 +22,7 @@ export class BootScene extends Phaser.Scene {
 
   async create(): Promise<void> {
     loadAudioPrefs()
+    bootAds()
     makeTextures(this)
     for (const key of this.textures.getTextureKeys()) {
       if (key.startsWith('__')) continue

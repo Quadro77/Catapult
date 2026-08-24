@@ -1,9 +1,11 @@
 import { GAME_HEIGHT, GAME_WIDTH } from '../config.ts'
 import { loadCustomArt, loadProject } from '../data/project.ts'
-import { playMusic, unlockAnd } from '../systems/Audio.ts'
+import { playMusic, playSfx, unlockAnd } from '../systems/Audio.ts'
 import { hasTex } from '../systems/chroma.ts'
 import { addFullscreenBadge, requestGameFullscreen } from '../systems/fullscreen.ts'
+import { claimDaily, dailyReady, formatCoins } from '../systems/progress.ts'
 import { addSettingsCog } from '../systems/SettingsMenu.ts'
+import { addCoinChip } from '../systems/walletChip.ts'
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -14,6 +16,7 @@ export class MenuScene extends Phaser.Scene {
     unlockAnd(this, () => playMusic(this, 'music-title', 0.38, false))
     addSettingsCog(this, { musicKey: 'music-title', musicVol: 0.38, musicLoop: false })
     addFullscreenBadge(this)
+    addCoinChip(this)
     this.cameras.main.setBackgroundColor(0x1a1410)
     const project = loadProject()
     loadCustomArt(this, project.customArt)
@@ -43,8 +46,10 @@ export class MenuScene extends Phaser.Scene {
       }
     }
 
-    const playAt = project.titleButtons.find((b) => b.id === 'play') ?? { x: GAME_WIDTH / 2, y: 430, rotation: 0 }
+    const playAt = project.titleButtons.find((b) => b.id === 'play') ?? { x: GAME_WIDTH / 2, y: 400, rotation: 0 }
     this.makePlay(playAt.x, playAt.y, playAt.rotation)
+    this.makeGarage(playAt.x, playAt.y + 96, playAt.rotation)
+    if (dailyReady()) this.offerDaily()
 
     this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT - 28, 'No animals were harmed in the making of this game.', {
@@ -122,5 +127,69 @@ export class MenuScene extends Phaser.Scene {
       requestGameFullscreen()
       this.scene.start('Play')
     })
+  }
+
+  private makeGarage(x: number, y: number, rotation: number): void {
+    const shadow = this.add.rectangle(6, 10, 260, 72, 0x000000, 0.45)
+    const box = this.add.rectangle(0, 0, 260, 72, 0xc45a12).setInteractive({ useHandCursor: true })
+    box.setStrokeStyle(6, 0x1a1410)
+    const text = this.add
+      .text(0, 0, 'GARAGE', {
+        fontFamily: 'Bangers, system-ui',
+        fontSize: '40px',
+        color: '#fff4e0',
+        padding: { x: 12, y: 8 },
+      })
+      .setOrigin(0.5)
+    const c = this.add.container(x, y, [shadow, box, text]).setDepth(40)
+    c.setRotation(Phaser.Math.DegToRad(rotation))
+    box.on('pointerover', () => box.setFillStyle(0xe08a3a))
+    box.on('pointerout', () => box.setFillStyle(0xc45a12))
+    box.on('pointerup', () => this.scene.start('Shop'))
+  }
+
+  private offerDaily(): void {
+    const reward = claimDaily()
+    if (reward <= 0) return
+    playSfx(this, 'sfx-bonus')
+    const dim = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x1a1410, 0.55).setDepth(80)
+    const card = this.add.rectangle(GAME_WIDTH / 2, 330, 420, 260, 0x2c1a12).setDepth(81)
+    card.setStrokeStyle(6, 0xffe14a)
+    const title = this.add
+      .text(GAME_WIDTH / 2, 250, 'DAILY TREAT', {
+        fontFamily: 'Bangers, system-ui',
+        fontSize: '40px',
+        color: '#ffe14a',
+        padding: { x: 8, y: 4 },
+      })
+      .setOrigin(0.5)
+      .setDepth(82)
+    const amt = this.add
+      .text(GAME_WIDTH / 2, 320, `+$${formatCoins(reward)}`, {
+        fontFamily: 'Bangers, system-ui',
+        fontSize: '56px',
+        color: '#fff4e0',
+      })
+      .setOrigin(0.5)
+      .setDepth(82)
+    const ok = this.add.rectangle(GAME_WIDTH / 2, 400, 180, 56, 0x2d8a2d).setDepth(82).setInteractive({ useHandCursor: true })
+    ok.setStrokeStyle(5, 0xfff4e0)
+    const okTxt = this.add
+      .text(GAME_WIDTH / 2, 400, 'NICE', {
+        fontFamily: 'Bangers, system-ui',
+        fontSize: '28px',
+        color: '#fff4e0',
+      })
+      .setOrigin(0.5)
+      .setDepth(83)
+    const close = () => {
+      dim.destroy()
+      card.destroy()
+      title.destroy()
+      amt.destroy()
+      ok.destroy()
+      okTxt.destroy()
+    }
+    ok.on('pointerup', close)
   }
 }

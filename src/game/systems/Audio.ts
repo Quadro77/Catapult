@@ -46,13 +46,31 @@ export function playMusic(scene: Phaser.Scene, key: string, volume = 0.35, loop 
     return
   }
   if (!scene.cache.audio.exists(key)) return
+  if (MUSIC[key]?.isPlaying) return
+  const title = MUSIC['music-title']
+  if (key !== 'music-title' && title?.isPlaying) {
+    const startAfter = () => {
+      if (!prefs.music || !scene.sys.isActive()) return
+      playMusic(scene, key, volume, loop)
+    }
+    title.once(Phaser.Sound.Events.COMPLETE, startAfter)
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      title.off(Phaser.Sound.Events.COMPLETE, startAfter)
+    })
+    return
+  }
   stopAllMusic()
   let track = MUSIC[key]
   if (!track) {
     track = scene.sound.add(key, { loop, volume })
     MUSIC[key] = track
   }
-  if (!track.isPlaying) track.play({ loop, volume })
+  track.play({ loop, volume })
+}
+
+export function stopMusic(key: string): void {
+  const track = MUSIC[key]
+  if (track?.isPlaying) track.stop()
 }
 
 export function stopAllMusic(): void {

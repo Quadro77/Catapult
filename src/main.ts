@@ -6,6 +6,7 @@ import { GameOverScene } from './game/scenes/GameOverScene.ts'
 import { MenuScene } from './game/scenes/MenuScene.ts'
 import { EditorScene } from './game/scenes/EditorScene.ts'
 import { PlayScene } from './game/scenes/PlayScene.ts'
+import { ShopScene } from './game/scenes/ShopScene.ts'
 import { bindFullscreenOnFirstTap } from './game/systems/fullscreen.ts'
 
 const parent = document.querySelector<HTMLDivElement>('#game')
@@ -45,7 +46,7 @@ const game = new Phaser.Game({
   input: {
     activePointers: 3,
   },
-  scene: [BootScene, MenuScene, PlayScene, GameOverScene, EditorScene],
+  scene: [BootScene, MenuScene, PlayScene, GameOverScene, ShopScene, EditorScene],
 })
 
 const refresh = () => game.scale.refresh()

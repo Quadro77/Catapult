@@ -1,66 +1,57 @@
-import type { LevelDef, OccupantInstance, WindowDef } from '../types.ts'
+import type { LevelSpace, ScreenWindow } from '../geometry.ts'
+import type { OccupantId } from '../types.ts'
 import { fitImage, hasTex } from './chroma.ts'
 
-export type WindowSlot = {
-  id: string
-  floor: number
-  bay: number
-  x: number
-  y: number
-  w: number
-  h: number
-  occupant: OccupantInstance | null
-  locked: boolean
-  hiding: boolean
+export type WindowView = ScreenWindow & {
   interior: Phaser.GameObjects.Rectangle
   occupantView: Phaser.GameObjects.Image
 }
 
 export class Building {
-  readonly windows: WindowSlot[] = []
+  readonly windows: WindowView[] = []
   readonly rect: Phaser.Geom.Rectangle
   groundY: number
   wallRight: number
   wallTop: number
   private scene: Phaser.Scene
+  private onHideDone: (id: string) => boolean
+  private bgKey: string
 
-  constructor(scene: Phaser.Scene, level: LevelDef) {
+  constructor(
+    scene: Phaser.Scene,
+    space: LevelSpace,
+    onHideDone: (id: string) => boolean = () => true,
+    bgKey = 'bg-building',
+  ) {
     this.scene = scene
-    const b = level.building
+    this.onHideDone = onHideDone
+    this.bgKey = bgKey
+    const b = space.building
     this.rect = new Phaser.Geom.Rectangle(b.x, b.y, b.w, b.h)
-    this.groundY = level.bounds.groundY
-    this.wallRight = level.bounds.wallRight
-    this.wallTop = level.bounds.wallTop
-    if (hasTex(scene, 'bg-building')) {
-      const bg = scene.add.image(640, 360, 'bg-building').setDepth(1)
+    this.groundY = space.groundY
+    this.wallRight = space.wallRight
+    this.wallTop = space.wallTop
+    if (hasTex(scene, bgKey)) {
+      const bg = scene.add.image(640, 360, bgKey).setDepth(1)
       bg.setDisplaySize(1280, 720)
     } else {
       this.drawFacade(b.x, b.y, b.w, b.h)
     }
-    const defs = b.windows ?? this.layoutWindows(b.floors, b.bays, b.x, b.y, b.w, b.h)
-    for (const def of defs) {
-      this.windows.push(this.makeWindow(def, hasTex(scene, 'bg-building')))
+    const painted = hasTex(scene, bgKey)
+    for (const win of space.windows) {
+      this.windows.push(this.makeWindow(win, painted))
     }
   }
 
-  hitTest(x: number, y: number): { kind: 'window'; slot: WindowSlot } | { kind: 'wall' } | null {
-    for (const slot of this.windows) {
-      if (!slot.occupant || slot.locked) continue
-      if (x >= slot.x && x <= slot.x + slot.w && y >= slot.y && y <= slot.y + slot.h) {
-        return { kind: 'window', slot }
-      }
-    }
-    if (x >= this.wallRight && y >= this.wallTop && y < this.groundY) {
-      return { kind: 'wall' }
-    }
-    return null
+  view(id: string): WindowView | undefined {
+    return this.windows.find((w) => w.id === id)
   }
 
-  showOccupant(slot: WindowSlot, occupant: OccupantInstance): void {
-    slot.occupant = occupant
-    slot.hiding = false
+  show(id: string, occupant: OccupantId): void {
+    const slot = this.view(id)
+    if (!slot) return
     slot.interior.setFillStyle(0xf2d36b, 0)
-    slot.occupantView.setTexture(occupant.defId === 'dogCatcher' ? 'catcher' : 'lady')
+    slot.occupantView.setTexture(occupant === 'dogCatcher' ? 'catcher' : 'lady')
     slot.occupantView.clearTint()
     slot.occupantView.setOrigin(0.5, 1)
     this.fitOccupant(slot)
@@ -75,31 +66,25 @@ export class Building {
     })
   }
 
-  hideOccupant(slot: WindowSlot): void {
-    if (slot.hiding || !slot.occupant) return
-    slot.hiding = true
-    const leaving = slot.occupant
+  hide(id: string): void {
+    const slot = this.view(id)
+    if (!slot) return
     this.scene.tweens.add({
       targets: slot.occupantView,
       y: slot.y + slot.h + 24,
       duration: 160,
       ease: 'Quad.in',
       onComplete: () => {
-        if (slot.occupant === leaving) {
-          slot.occupant = null
-          slot.hiding = false
-        }
-        if (!slot.occupant) {
-          slot.occupantView.setVisible(false)
-          if (!slot.locked) slot.interior.setFillStyle(0x3a2418, hasTex(this.scene, 'bg-building') ? 0 : 1)
-        }
+        if (!this.onHideDone(id)) return
+        slot.occupantView.setVisible(false)
+        slot.interior.setFillStyle(0x3a2418, hasTex(this.scene, this.bgKey) ? 0 : 1)
       },
     })
   }
 
-  flashCatch(slot: WindowSlot): void {
-    slot.locked = true
-    slot.hiding = false
+  flashCatch(id: string): void {
+    const slot = this.view(id)
+    if (!slot) return
     this.scene.tweens.killTweensOf(slot.occupantView)
     slot.occupantView.setVisible(true)
     slot.occupantView.setAlpha(1)
@@ -113,9 +98,9 @@ export class Building {
     }
   }
 
-  flashCatcher(slot: WindowSlot): void {
-    slot.locked = true
-    slot.hiding = false
+  flashCatcher(id: string): void {
+    const slot = this.view(id)
+    if (!slot) return
     this.scene.tweens.killTweensOf(slot.occupantView)
     slot.occupantView.setVisible(true)
     slot.occupantView.setAlpha(1)
@@ -128,60 +113,21 @@ export class Building {
     this.fitOccupant(slot)
   }
 
-  unlock(slot: WindowSlot): void {
-    slot.locked = false
-    slot.hiding = false
-    slot.occupant = null
+  unlock(id: string): void {
+    const slot = this.view(id)
+    if (!slot) return
     slot.occupantView.setTexture('lady')
     this.fitOccupant(slot)
     slot.occupantView.setVisible(false)
-    slot.interior.setFillStyle(0x3a2418, hasTex(this.scene, 'bg-building') ? 0 : 1)
+    slot.interior.setFillStyle(0x3a2418, hasTex(this.scene, this.bgKey) ? 0 : 1)
   }
 
-  private fitOccupant(slot: WindowSlot): void {
+  private fitOccupant(slot: WindowView): void {
     fitImage(slot.occupantView, slot.w * 1.05, slot.h * 1.35)
   }
 
-  private layoutWindows(
-    floors: number,
-    bays: number,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-  ): WindowDef[] {
-    const padX = 58
-    const padTop = 52
-    const padBot = 78
-    const gapX = 30
-    const gapY = 26
-    const cellW = (w - padX * 2 - gapX * (bays - 1)) / bays
-    const cellH = (h - padTop - padBot - gapY * (floors - 1)) / floors
-    const out: WindowDef[] = []
-    for (let floor = 0; floor < floors; floor += 1) {
-      for (let bay = 0; bay < bays; bay += 1) {
-        const wx = x + padX + bay * (cellW + gapX)
-        const wy = y + padTop + floor * (cellH + gapY)
-        out.push({
-          id: `f${floor}b${bay}`,
-          nx: (wx - x) / w,
-          ny: (wy - y) / h,
-          nw: cellW / w,
-          nh: cellH / h,
-        })
-      }
-    }
-    return out
-  }
-
-  private makeWindow(def: WindowDef, painted: boolean): WindowSlot {
-    const x = this.rect.x + def.nx * this.rect.width
-    const y = this.rect.y + def.ny * this.rect.height
-    const w = def.nw * this.rect.width
-    const h = def.nh * this.rect.height
-    const parts = def.id.match(/f(\d+)b(\d+)/)
-    const floor = parts ? Number(parts[1]) : 0
-    const bay = parts ? Number(parts[2]) : 0
+  private makeWindow(win: ScreenWindow, painted: boolean): WindowView {
+    const { x, y, w, h } = win
     if (!painted) {
       this.scene.add.rectangle(x + w / 2, y + h / 2, w + 14, h + 14, 0x2f5a38).setDepth(4)
     }
@@ -191,20 +137,7 @@ export class Building {
     const occupantView = this.scene.add.image(x + w / 2, y + h, 'lady').setDepth(7).setVisible(false)
     occupantView.setOrigin(0.5, 1)
     fitImage(occupantView, w * 1.05, h * 1.35)
-    return {
-      id: def.id,
-      floor,
-      bay,
-      x,
-      y,
-      w,
-      h,
-      occupant: null,
-      locked: false,
-      hiding: false,
-      interior,
-      occupantView,
-    }
+    return { ...win, interior, occupantView }
   }
 
   private drawFacade(x: number, y: number, w: number, h: number): void {

@@ -1,12 +1,5 @@
 export type OccupantId = 'oldLady' | 'dogCatcher'
 
-export type OccupantDef = {
-  id: OccupantId
-  label: string
-  color: number
-  accent: number
-}
-
 export type OccupantInstance = {
   defId: OccupantId
   windowId: string
@@ -20,18 +13,17 @@ export type CatDef = {
   drag: number
   radius: number
   color: number
+  price: number
+  blurb: string
+  coinMul: number
 }
 
-export type CatapultMods = {
-  power: number
-  elasticity: number
-  ghostT: number
-  maxPull: number
-  multiShot: number
-}
+export type UpgradeId = 'power' | 'stretch' | 'aim' | 'soft' | 'lives'
 
 export type WindowDef = {
   id: string
+  floor?: number
+  bay?: number
   nx: number
   ny: number
   nw: number
@@ -41,6 +33,9 @@ export type WindowDef = {
 export type LevelDef = {
   id: string
   name: string
+  bgKey: string
+  price: number
+  blurb: string
   lives: number
   bonusEvery: number
   angerLimit: number
@@ -78,8 +73,6 @@ export type Outcome =
   | { kind: 'catch'; windowId: string }
   | { kind: 'catcher'; windowId: string }
   | { kind: 'splat'; reason: 'wall' | 'ground' | 'bounds' }
-
-export type PlayState = 'idle' | 'aiming' | 'flight' | 'resolving' | 'paused' | 'over'
 
 export type PlacedImage = {
   id: string

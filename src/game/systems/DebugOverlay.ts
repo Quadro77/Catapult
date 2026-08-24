@@ -1,4 +1,5 @@
 import { GAME_WIDTH, POUCH_HIT_R } from '../config.ts'
+import type { Occupancy } from '../occupancy.ts'
 import type { Building } from './Building.ts'
 import type { Projectile } from './Projectile.ts'
 import type { Slingshot } from './Slingshot.ts'
@@ -8,11 +9,19 @@ export class DebugOverlay {
   private gfx: Phaser.GameObjects.Graphics
   private label: Phaser.GameObjects.Text
   private building: Building
+  private occupancy: Occupancy
   private sling: Slingshot
   private projectile: Projectile
 
-  constructor(scene: Phaser.Scene, building: Building, sling: Slingshot, projectile: Projectile) {
+  constructor(
+    scene: Phaser.Scene,
+    building: Building,
+    occupancy: Occupancy,
+    sling: Slingshot,
+    projectile: Projectile,
+  ) {
     this.building = building
+    this.occupancy = occupancy
     this.sling = sling
     this.projectile = projectile
     this.gfx = scene.add.graphics().setDepth(500)
@@ -55,7 +64,7 @@ export class DebugOverlay {
     g.lineStyle(2, 0x4dc3ff, 0.95)
     for (const slot of this.building.windows) {
       g.strokeRect(slot.x, slot.y, slot.w, slot.h)
-      if (slot.occupant) {
+      if (this.occupancy.window(slot.id)?.occupant) {
         g.fillStyle(0x4dc3ff, 0.2)
         g.fillRect(slot.x, slot.y, slot.w, slot.h)
       }

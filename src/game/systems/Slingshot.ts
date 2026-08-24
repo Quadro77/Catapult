@@ -1,5 +1,6 @@
 import { GHOST_DOTS, MIN_PULL, POUCH_HIT_R } from '../config.ts'
-import type { CatapultMods, LevelDef } from '../types.ts'
+import type { Loadout } from '../loadout.ts'
+import type { LevelDef } from '../types.ts'
 import { fitImage, texKey } from './chroma.ts'
 
 export class Slingshot {
@@ -18,14 +19,14 @@ export class Slingshot {
   private leftFork: Phaser.Math.Vector2
   private rightFork: Phaser.Math.Vector2
 
-  constructor(scene: Phaser.Scene, level: LevelDef, mods: CatapultMods) {
+  constructor(scene: Phaser.Scene, level: LevelDef, ready: Loadout) {
     this.scene = scene
     this.origin = new Phaser.Math.Vector2(level.slingshot.origin.x, level.slingshot.origin.y)
     this.pouch = this.origin.clone()
-    this.maxPull = level.slingshot.maxPull * mods.maxPull
-    this.power = level.slingshot.power * mods.power
-    this.gravity = level.slingshot.gravity
-    this.ghostT = level.slingshot.ghostT * mods.ghostT
+    this.maxPull = ready.maxPull
+    this.power = ready.power
+    this.gravity = ready.gravity
+    this.ghostT = ready.ghostT
     this.leftFork = new Phaser.Math.Vector2(this.origin.x - 28, this.origin.y - 96)
     this.rightFork = new Phaser.Math.Vector2(this.origin.x + 28, this.origin.y - 96)
     this.frame = scene.add.graphics().setDepth(15)

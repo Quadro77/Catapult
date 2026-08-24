@@ -64,6 +64,9 @@
     {
       "id": "brownstone-1",
       "name": "Brownstone",
+      "bgKey": "bg-building",
+      "price": 0,
+      "blurb": "The first stoop.",
       "lives": 3,
       "bonusEvery": 9,
       "building": {
@@ -155,7 +158,7 @@
       },
       "slingshot": {
         "origin": {
-          "x": 174,
+          "x": 243,
           "y": 600
         },
         "maxPull": 148,

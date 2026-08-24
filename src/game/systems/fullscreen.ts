@@ -48,30 +48,57 @@ export function onFullscreenChange(fn: () => void): () => void {
 }
 
 export function addFullscreenBadge(scene: Phaser.Scene): void {
-  const mark = scene.add
-    .text(GAME_WIDTH - 16, GAME_HEIGHT - 14, '', {
-      fontFamily: 'Bangers, system-ui',
-      fontSize: '26px',
-      color: '#fff4e0',
-      stroke: '#1a1410',
-      strokeThickness: 6,
-      padding: { x: 12, y: 8 },
-    })
-    .setOrigin(1, 1)
-    .setAngle(-7)
-    .setDepth(610)
-    .setInteractive({ useHandCursor: true })
+  const x = GAME_WIDTH - 28
+  const y = GAME_HEIGHT - 28
+  const icon = scene.add.graphics().setDepth(610)
+  const hit = scene.add.rectangle(x, y, 44, 44, 0x000000, 0).setDepth(611).setInteractive({ useHandCursor: true })
+  let color = 0xfff4e0
 
-  const sync = () => {
-    mark.setText(isGameFullscreen() ? 'BACK' : 'FULL')
+  const paint = () => {
+    icon.clear()
+    drawFullscreenIcon(icon, x, y, 20, 0x1a1410, 7, isGameFullscreen())
+    drawFullscreenIcon(icon, x, y, 20, color, 3.5, isGameFullscreen())
   }
 
-  mark.on('pointerover', () => mark.setColor('#ffe14a'))
-  mark.on('pointerout', () => mark.setColor('#fff4e0'))
-  mark.on('pointerdown', (p: Phaser.Input.Pointer) => p.event?.stopPropagation())
-  mark.on('pointerup', () => toggleGameFullscreen())
+  hit.on('pointerover', () => {
+    color = 0xffe14a
+    paint()
+  })
+  hit.on('pointerout', () => {
+    color = 0xfff4e0
+    paint()
+  })
+  hit.on('pointerdown', (p: Phaser.Input.Pointer) => p.event?.stopPropagation())
+  hit.on('pointerup', () => toggleGameFullscreen())
 
-  const off = onFullscreenChange(sync)
+  const off = onFullscreenChange(paint)
   scene.events.once(Phaser.Scenes.Events.SHUTDOWN, off)
-  sync()
+  paint()
+}
+
+function drawFullscreenIcon(
+  g: Phaser.GameObjects.Graphics,
+  cx: number,
+  cy: number,
+  size: number,
+  color: number,
+  width: number,
+  exit: boolean,
+): void {
+  const a = size / 2
+  const arm = size * 0.4
+  const inset = exit ? arm : 0
+  const out = exit ? 0 : arm
+  g.lineStyle(width, color, 1)
+  const corner = (hx: number, hy: number) => {
+    g.beginPath()
+    g.moveTo(cx + hx * (a - out), cy + hy * (a - inset))
+    g.lineTo(cx + hx * (a - inset), cy + hy * (a - inset))
+    g.lineTo(cx + hx * (a - inset), cy + hy * (a - out))
+    g.strokePath()
+  }
+  corner(-1, -1)
+  corner(1, -1)
+  corner(-1, 1)
+  corner(1, 1)
 }

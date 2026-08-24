@@ -129,12 +129,21 @@ export class PlayScene extends Phaser.Scene {
       if (this.run.phase !== 'aiming') return
       this.sling.dragTo(p.worldX, p.worldY)
     })
-    this.input.on('pointerup', () => this.release())
-    this.input.on('pointerupoutside', () => this.release())
+    this.input.on('pointerup', (p: Phaser.Input.Pointer) => this.release(p))
+    this.input.on('pointerupoutside', (p: Phaser.Input.Pointer) => this.release(p))
+    const onPointerCancel = () => this.interruptAim()
+    window.addEventListener('pointercancel', onPointerCancel, true)
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      window.removeEventListener('pointercancel', onPointerCancel, true)
+    })
   }
 
-  private release(): void {
+  private release(p?: Phaser.Input.Pointer): void {
     if (this.run.phase !== 'aiming') return
+    if (p?.wasCanceled) {
+      this.interruptAim()
+      return
+    }
     stopSfx(this, 'sfx-pull')
     const full = this.hitMaxPull
     const launch = this.sling.release()
@@ -148,6 +157,17 @@ export class PlayScene extends Phaser.Scene {
     if (full) this.time.delayedCall(100, () => playSfx(this, 'sfx-whip', 0.9))
     this.hitMaxPull = false
     this.projectile.launch(this.sling.origin.x, this.sling.origin.y, launch.vx, launch.vy)
+  }
+
+  private endPull(): void {
+    stopSfx(this, 'sfx-pull')
+    this.sling.cancel()
+  }
+
+  private interruptAim(): void {
+    this.endPull()
+    this.hitMaxPull = false
+    if (this.run.phase === 'aiming') this.run.cancelAim()
   }
 
   private applyOutcome(outcome: Outcome): void {
@@ -280,6 +300,7 @@ export class PlayScene extends Phaser.Scene {
   }
 
   private handleFailNext(next: FailNext): void {
+    this.endPull()
     if (next === 'reload') {
       this.reload()
       return
@@ -307,11 +328,7 @@ export class PlayScene extends Phaser.Scene {
       this.resumeGame()
       return
     }
-    if (this.run.phase === 'aiming') {
-      stopSfx(this, 'sfx-pull')
-      this.sling.cancel()
-      this.run.cancelAim()
-    }
+    if (this.run.phase === 'aiming') this.interruptAim()
     this.paused = true
     this.physics.world.pause()
     this.tweens.pauseAll()
@@ -483,6 +500,7 @@ export class PlayScene extends Phaser.Scene {
 
   private reload(): void {
     if (this.run.phase === 'over') return
+    this.endPull()
     this.time.paused = false
     this.physics.world.resume()
     this.tweens.killTweensOf(this.projectile.sprite)

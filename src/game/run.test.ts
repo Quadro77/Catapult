@@ -101,6 +101,64 @@ describe('lady missed', () => {
     assert.equal(run.anger, 0)
     assert.equal(run.phase, 'idle')
   })
+
+  it('still raises anger while aiming', () => {
+    const run = fresh()
+    assert.equal(run.beginAim().kind, 'aiming')
+    assert.equal(run.missLady().kind, 'anger')
+    assert.equal(run.anger, 1)
+    assert.equal(run.phase, 'aiming')
+    assert.equal(run.canAim(), false)
+  })
+
+  it('leaves aim without a flight when anger spends a life mid-pull', () => {
+    const run = fresh()
+    assert.equal(run.beginAim().kind, 'aiming')
+    run.missLady()
+    run.missLady()
+    const ev = run.missLady()
+    assert.equal(ev.kind, 'furious')
+    if (ev.kind !== 'furious') return
+    assert.equal(ev.next, 'reload')
+    assert.equal(run.phase, 'idle')
+    assert.equal(run.canAim(), true)
+  })
+
+  it('offers a continue when anger spends the last life mid-pull', () => {
+    const run = fresh({ startLives: 1 })
+    assert.equal(run.beginAim().kind, 'aiming')
+    run.missLady()
+    run.missLady()
+    const ev = run.missLady()
+    assert.equal(ev.kind, 'furious')
+    if (ev.kind !== 'furious') return
+    assert.equal(ev.next, 'continue')
+    assert.equal(run.phase, 'continue')
+    assert.equal(run.canAim(), false)
+  })
+
+  it('ends the run when anger spends the last life and continues are gone', () => {
+    const run = fresh({ startLives: 1, maxContinues: 0 })
+    assert.equal(run.beginAim().kind, 'aiming')
+    run.missLady()
+    run.missLady()
+    const ev = run.missLady()
+    assert.equal(ev.kind, 'furious')
+    if (ev.kind !== 'furious') return
+    assert.equal(ev.next, 'over')
+    assert.equal(run.phase, 'over')
+    assert.equal(run.canAim(), false)
+  })
+})
+
+describe('cancel aim', () => {
+  it('returns to idle without a flight so the next shot may start', () => {
+    const run = fresh()
+    assert.equal(run.beginAim().kind, 'aiming')
+    assert.equal(run.cancelAim().kind, 'idle')
+    assert.equal(run.phase, 'idle')
+    assert.equal(run.canAim(), true)
+  })
 })
 
 describe('continue', () => {

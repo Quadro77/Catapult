@@ -9,7 +9,7 @@ One play attempt, from first shot until the player is out of lives and either co
 _Avoid_: game, session, playthrough, match, PlayScene
 
 **Shot**:
-One launch during a run, from aim until an outcome. The sling does the pull. The run owns whether a shot may start, fly, or resolve.
+One launch during a run, from aim until an outcome. The sling does the pull. The run owns whether a shot may start, fly, or resolve — leaving aim without a flight ends the pull.
 _Avoid_: turn, throw, launch
 
 **Outcome**:

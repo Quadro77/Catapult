@@ -49,7 +49,7 @@ export class ShopScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(0x1a1410)
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x1a1410, 0.2)
     this.add
-      .text(28, 30, 'GARAGE', {
+      .text(28, 30, 'CATTERY', {
         fontFamily: 'Bangers, system-ui',
         fontSize: '44px',
         color: '#fff4e0',

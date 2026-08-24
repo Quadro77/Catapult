@@ -93,7 +93,7 @@ export class GameOverScene extends Phaser.Scene {
       this.doubleTxt = pair.txt
     }
     this.button(GAME_WIDTH / 2, this.doubled ? 450 : 520, 'AGAIN', 0xe23d28, () => this.scene.start('Play'))
-    this.button(GAME_WIDTH / 2 - 140, 600, 'GARAGE', 0xc45a12, () => this.scene.start('Shop'))
+    this.button(GAME_WIDTH / 2 - 140, 600, 'CATTERY', 0xc45a12, () => this.scene.start('Shop'))
     this.button(GAME_WIDTH / 2 + 140, 600, 'MENU', 0x3a5aaa, () => this.scene.start('Menu'))
   }
 

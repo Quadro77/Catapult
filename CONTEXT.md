@@ -56,6 +56,10 @@ _Avoid_: perk, skill, buff, CatapultMods
 This cat, these upgrade ranks, and this level's sling, finished into the numbers a shot and a run use.
 _Avoid_: mods, equippedMods, loadout mapping
 
+**Cattery**:
+Where the player buys and equips the loadout: cats, upgrades, levels, and coins.
+_Avoid_: Garage, Shop, store
+
 **Window**:
 A hole in the building. Floor and bay are data on the window, not a name.
 _Avoid_: WinRect, slot, hit box

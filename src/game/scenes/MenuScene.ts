@@ -47,8 +47,19 @@ export class MenuScene extends Phaser.Scene {
     }
 
     const playAt = project.titleButtons.find((b) => b.id === 'play') ?? { x: GAME_WIDTH / 2, y: 400, rotation: 0 }
-    this.makePlay(playAt.x, playAt.y, playAt.rotation)
-    this.makeGarage(playAt.x, playAt.y + 96, playAt.rotation)
+    const playH = 68
+    const catteryH = 52
+    const stackGap = 12
+    const maxCatteryY = GAME_HEIGHT - 28 - 36 - catteryH / 2
+    let playY = playAt.y
+    let catteryY = playY + playH / 2 + stackGap + catteryH / 2
+    if (catteryY > maxCatteryY) {
+      const shift = catteryY - maxCatteryY
+      playY -= shift
+      catteryY -= shift
+    }
+    this.makePlay(playAt.x, playY, playAt.rotation)
+    this.makeCattery(playAt.x, catteryY, playAt.rotation)
     if (dailyReady()) this.offerDaily()
 
     this.add
@@ -108,15 +119,15 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private makePlay(x: number, y: number, rotation: number): void {
-    const shadow = this.add.rectangle(6, 10, 260, 84, 0x000000, 0.45)
-    const box = this.add.rectangle(0, 0, 260, 84, 0xe23d28).setInteractive({ useHandCursor: true })
+    const shadow = this.add.rectangle(6, 8, 220, 68, 0x000000, 0.45)
+    const box = this.add.rectangle(0, 0, 220, 68, 0xe23d28).setInteractive({ useHandCursor: true })
     box.setStrokeStyle(6, 0x1a1410)
     const text = this.add
       .text(0, 0, 'PLAY', {
         fontFamily: 'Bangers, system-ui',
-        fontSize: '52px',
+        fontSize: '44px',
         color: '#fff4e0',
-        padding: { x: 12, y: 8 },
+        padding: { x: 10, y: 6 },
       })
       .setOrigin(0.5)
     const c = this.add.container(x, y, [shadow, box, text]).setDepth(40)
@@ -129,16 +140,16 @@ export class MenuScene extends Phaser.Scene {
     })
   }
 
-  private makeGarage(x: number, y: number, rotation: number): void {
-    const shadow = this.add.rectangle(6, 10, 260, 72, 0x000000, 0.45)
-    const box = this.add.rectangle(0, 0, 260, 72, 0xc45a12).setInteractive({ useHandCursor: true })
+  private makeCattery(x: number, y: number, rotation: number): void {
+    const shadow = this.add.rectangle(6, 8, 200, 52, 0x000000, 0.45)
+    const box = this.add.rectangle(0, 0, 200, 52, 0xc45a12).setInteractive({ useHandCursor: true })
     box.setStrokeStyle(6, 0x1a1410)
     const text = this.add
-      .text(0, 0, 'GARAGE', {
+      .text(0, 0, 'CATTERY', {
         fontFamily: 'Bangers, system-ui',
-        fontSize: '40px',
+        fontSize: '30px',
         color: '#fff4e0',
-        padding: { x: 12, y: 8 },
+        padding: { x: 10, y: 6 },
       })
       .setOrigin(0.5)
     const c = this.add.container(x, y, [shadow, box, text]).setDepth(40)

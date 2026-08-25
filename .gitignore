@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+#Files
+NOTES.md
+CONTEXT.md
+Glossary.md

@@ -244,12 +244,13 @@ export class EditorScene extends Phaser.Scene {
   }
 
   private reset(): void {
+    if (!window.confirm('Reset all levels to the last bake? Unbaked placements will be lost.')) return
     void clearProject()
     this.project = defaultProject()
     this.edit = LevelEdit.open(cloneLevel(activeLevel(this.project)))
     this.chrome.rebuildTabs(this.tabList(), this.edit.level.id, (t) => this.switchLevel(t), () => this.addLevel())
     this.rebuildStage()
-    this.refreshHint('Reset to defaults')
+    this.refreshHint('Reset to last bake')
   }
 
   private syncSlingArt(): void {
@@ -261,7 +262,7 @@ export class EditorScene extends Phaser.Scene {
   private refreshHint(extra = ''): void {
     const lines = [
       'LEVEL  drag boxes  ·  corner = resize',
-      'S save   C download   N add window   Del delete   P play   R reset   Esc menu',
+      'S save   C download   N add window   Del delete   P play   R reset (asks)   Esc menu',
       extra,
     ]
     this.hint.setText(lines.filter(Boolean).join('\n'))

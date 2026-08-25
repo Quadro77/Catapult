@@ -1,4 +1,5 @@
 import type { LevelDef } from '../../types.ts'
+import { BAKED } from '../baked.ts'
 
 export const LEVEL_01: LevelDef = {
   id: 'brownstone-1',
@@ -6,9 +7,9 @@ export const LEVEL_01: LevelDef = {
   bgKey: 'bg-building',
   price: 0,
   blurb: 'The first stoop.',
-  lives: 3,
-  bonusEvery: 9,
-  angerLimit: 6,
+  lives: BAKED.levels['brownstone-1'].lives,
+  bonusEvery: BAKED.levels['brownstone-1'].bonusEvery,
+  angerLimit: BAKED.levels['brownstone-1'].angerLimit,
   building: {
     floors: 3,
     bays: 3,
@@ -16,35 +17,9 @@ export const LEVEL_01: LevelDef = {
     y: 0,
     w: 1280,
     h: 720,
-    windows: [
-      { id: 'f0b0', floor: 0, bay: 0, nx: 0.5421875, ny: 0.11527777777777778, nw: 0.06328125, nh: 0.1375 },
-      { id: 'f0b1', floor: 0, bay: 1, nx: 0.69296875, ny: 0.10833333333333334, nw: 0.065625, nh: 0.14305555555555555 },
-      { id: 'f0b2', floor: 0, bay: 2, nx: 0.85078125, ny: 0.10694444444444444, nw: 0.06640625, nh: 0.14166666666666666 },
-      { id: 'f1b0', floor: 1, bay: 0, nx: 0.5421875, ny: 0.35, nw: 0.065625, nh: 0.1388888888888889 },
-      { id: 'f1b1', floor: 1, bay: 1, nx: 0.69140625, ny: 0.35, nw: 0.0671875, nh: 0.14166666666666666 },
-      { id: 'f1b2', floor: 1, bay: 2, nx: 0.84921875, ny: 0.3486111111111111, nw: 0.0671875, nh: 0.14166666666666666 },
-      { id: 'f2b0', floor: 2, bay: 0, nx: 0.54453125, ny: 0.5805555555555556, nw: 0.06015625, nh: 0.13472222222222222 },
-      { id: 'f2b1', floor: 2, bay: 1, nx: 0.6921875, ny: 0.5847222222222223, nw: 0.0640625, nh: 0.14166666666666666 },
-      { id: 'f2b2', floor: 2, bay: 2, nx: 0.84765625, ny: 0.5791666666666667, nw: 0.06640625, nh: 0.14722222222222223 },
-    ],
+    windows: BAKED.levels['brownstone-1'].windows,
   },
-  director: {
-    popInterval: [2000, 3600],
-    visibleMs: [2000, 3200],
-    maxConcurrent: 3,
-    catcherChance: 0.4,
-    pool: ['oldLady', 'dogCatcher'],
-  },
-  slingshot: {
-    origin: { x: 243, y: 600 },
-    maxPull: 132,
-    power: 8,
-    gravity: 1500,
-    ghostT: 0.25,
-  },
-  bounds: {
-    groundY: 686,
-    wallRight: 1257,
-    wallTop: 0,
-  },
+  director: BAKED.levels['brownstone-1'].director,
+  slingshot: BAKED.levels['brownstone-1'].slingshot,
+  bounds: BAKED.levels['brownstone-1'].bounds,
 }

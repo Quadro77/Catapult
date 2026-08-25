@@ -1,5 +1,5 @@
 import type { LevelDef } from '../../types.ts'
-import { win } from './windows.ts'
+import { BAKED } from '../baked.ts'
 
 export const LEVEL_PALACE: LevelDef = {
   id: 'palace',
@@ -7,9 +7,9 @@ export const LEVEL_PALACE: LevelDef = {
   bgKey: 'bg-palace',
   price: 14000,
   blurb: 'Red columns.',
-  lives: 3,
-  bonusEvery: 34,
-  angerLimit: 1,
+  lives: BAKED.levels.palace.lives,
+  bonusEvery: BAKED.levels.palace.bonusEvery,
+  angerLimit: BAKED.levels.palace.angerLimit,
   building: {
     floors: 2,
     bays: 3,
@@ -17,32 +17,9 @@ export const LEVEL_PALACE: LevelDef = {
     y: 0,
     w: 1280,
     h: 720,
-    windows: [
-      win('f0b0', 0, 0, 500, 240, 84, 92),
-      win('f0b1', 0, 1, 680, 240, 84, 92),
-      win('f0b2', 0, 2, 860, 240, 84, 92),
-      win('f1b0', 1, 0, 500, 430, 84, 104),
-      win('f1b1', 1, 1, 680, 430, 84, 104),
-      win('f1b2', 1, 2, 860, 430, 84, 104),
-    ],
+    windows: BAKED.levels.palace.windows,
   },
-  director: {
-    popInterval: [1500, 2700],
-    visibleMs: [1500, 2400],
-    maxConcurrent: 1,
-    catcherChance: 0.65,
-    pool: ['oldLady', 'dogCatcher'],
-  },
-  slingshot: {
-    origin: { x: 200, y: 600 },
-    maxPull: 132,
-    power: 8,
-    gravity: 2000,
-    ghostT: 0.25,
-  },
-  bounds: {
-    groundY: 686,
-    wallRight: 1240,
-    wallTop: 0,
-  },
+  director: BAKED.levels.palace.director,
+  slingshot: BAKED.levels.palace.slingshot,
+  bounds: BAKED.levels.palace.bounds,
 }

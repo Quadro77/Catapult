@@ -1,32 +1,24 @@
+import { applyGeometry } from './bake.ts'
+import { BAKED } from './baked.ts'
 import { LEVEL_01, LEVEL_BY_ID, LEVEL_LIST } from './levels/index.ts'
-import type { CustomArt, LevelDef, PlacedImage, ProjectSave, TitleButton } from '../types.ts'
-
-export const DEFAULT_BUTTONS: TitleButton[] = [
-  { id: 'play', x: 644, y: 611, rotation: 0 },
-  { id: 'editor', x: 216, y: 66, rotation: 0 },
-]
-
-export const DEFAULT_TITLE: PlacedImage[] = [
-  { id: 'bg', key: 'bg-building', x: 643, y: 364, rotation: 0, scale: 0.714, depth: 1 },
-  { id: 'title', key: 'ui-title', x: 654, y: 165, rotation: 0, scale: 0.5200542786151454, depth: 10 },
-  { id: 'lady', key: 'lady', x: 1032, y: 476, rotation: 0, scale: 0.721355356629047, depth: 12 },
-  { id: 'sling', key: 'slingshot', x: 217, y: 488, rotation: 0, scale: 0.35924657794500753, depth: 12 },
-  { id: 'img-1786865887876', key: 'cat-fly', x: 646, y: 385, rotation: 0, scale: 0.4, depth: 15 },
-]
+import type { CustomArt, LevelDef, ProjectSave } from '../types.ts'
 
 let cached: ProjectSave | null = null
 
 export function defaultProject(): ProjectSave {
-  return {
-    titleImages: DEFAULT_TITLE.map((p) => ({ ...p })),
-    titleButtons: DEFAULT_BUTTONS.map((b) => ({ ...b })),
-    levels: LEVEL_LIST.map((l) => JSON.parse(JSON.stringify(l)) as LevelDef),
-    activeLevelId: LEVEL_01.id,
-    customArt: [],
-  }
+  return applyGeometry(
+    {
+      titleImages: [],
+      titleButtons: [],
+      levels: LEVEL_LIST.map((l) => JSON.parse(JSON.stringify(l)) as LevelDef),
+      activeLevelId: LEVEL_01.id,
+      customArt: [],
+    },
+    BAKED,
+  )
 }
 
-function mergeSaved(saved: Partial<ProjectSave>): ProjectSave {
+export function mergeSaved(saved: Partial<ProjectSave>): ProjectSave {
   const base = defaultProject()
   if (Array.isArray(saved.titleImages) && saved.titleImages.length) base.titleImages = saved.titleImages
   if (Array.isArray(saved.titleButtons) && saved.titleButtons.length) base.titleButtons = saved.titleButtons

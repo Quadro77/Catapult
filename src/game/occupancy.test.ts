@@ -24,8 +24,8 @@ function ladyCount(occ: Occupancy): number {
   return windows.filter((w) => occ.window(w.id)?.occupant?.defId === 'oldLady').length
 }
 
-describe('spawn gap', () => {
-  it('pops the first lady after a full spawn gap', () => {
+describe('hole', () => {
+  it('pops the first lady after a full hole', () => {
     const occ = occupancy()
     assert.deepEqual(occ.update(99, 0), [])
     const popped = occ.update(1, 0)
@@ -34,13 +34,13 @@ describe('spawn gap', () => {
     assert.equal(popped[0].occupant, 'oldLady')
   })
 
-  it('fills to the lady cap after the first spawn gap', () => {
+  it('pops one lady after the first hole even when the cap is higher', () => {
     const occ = occupancy({ maxConcurrent: 3 })
     occ.update(100, 0)
-    assert.equal(ladyCount(occ), 3)
+    assert.equal(ladyCount(occ), 1)
   })
 
-  it('waits a full spawn gap after a lady is unlocked before replacing her', () => {
+  it('waits a full hole after a lady is unlocked before replacing her', () => {
     const occ = occupancy({ maxConcurrent: 1 })
     occ.update(100, 0)
     occ.lock('a')
@@ -57,9 +57,20 @@ describe('spawn gap', () => {
     assert.equal(occ.window('a')?.occupant?.until, 600)
   })
 
-  it('uses one spawn gap then burst-fills after two ladies leave', () => {
+  it('pops the next lady a short beat later', () => {
     const occ = occupancy({ maxConcurrent: 2 })
     occ.update(100, 0)
+    assert.equal(ladyCount(occ), 1)
+    occ.update(179, 0)
+    assert.equal(ladyCount(occ), 1)
+    occ.update(1, 0)
+    assert.equal(ladyCount(occ), 2)
+  })
+
+  it('gives each leaving lady her own hole', () => {
+    const occ = occupancy({ maxConcurrent: 2 })
+    occ.update(100, 0)
+    occ.update(180, 0)
     occ.lock('a')
     occ.unlock('a')
     occ.lock('b')
@@ -67,10 +78,14 @@ describe('spawn gap', () => {
     occ.update(99, 0)
     assert.equal(ladyCount(occ), 0)
     occ.update(1, 0)
+    assert.equal(ladyCount(occ), 1)
+    occ.update(179, 0)
+    assert.equal(ladyCount(occ), 1)
+    occ.update(1, 0)
     assert.equal(ladyCount(occ), 2)
   })
 
-  it('waits a full spawn gap after a missed lady finishes hiding', () => {
+  it('waits a full hole after a missed lady finishes hiding', () => {
     const occ = occupancy({ maxConcurrent: 1, visibleMs: [50, 50] })
     occ.update(100, 0)
     occ.update(50, 0)
@@ -98,7 +113,7 @@ describe('hit', () => {
 
     const withCatcher = occupancy({ catcherChance: 1 }, () => 0)
     withCatcher.update(100, 0)
-    withCatcher.update(50, 0)
+    withCatcher.update(180, 0)
     const catcherHit = withCatcher.hit({ x: 25, y: 5 })
     assert.deepEqual(catcherHit, { kind: 'catcher', windowId: 'b' })
   })
@@ -131,22 +146,76 @@ describe('miss', () => {
   })
 })
 
-describe('catcher cap', () => {
-  it('does not pop a second catcher while one is up', () => {
-    const occ = occupancy({ maxConcurrent: 2, catcherChance: 1 }, () => 0)
+describe('catcher hole', () => {
+  it('pops a catcher a short beat after the lady when both holes end together', () => {
+    const occ = occupancy({ catcherChance: 1 })
     occ.update(100, 0)
-    occ.update(50, 0)
+    assert.equal(occ.window('a')?.occupant?.defId, 'oldLady')
+    assert.equal(occ.window('b')?.occupant, null)
+    occ.update(179, 0)
+    assert.equal(occ.window('b')?.occupant, null)
+    occ.update(1, 0)
+    assert.equal(occ.window('b')?.occupant?.defId, 'dogCatcher')
+  })
+
+  it('gives the catcher their own stay from the level range', () => {
+    const occ = occupancy({ catcherChance: 1, visibleMs: [500, 500] })
+    occ.update(100, 0)
+    occ.update(180, 0)
+    assert.equal(occ.window('b')?.occupant?.until, 780)
+  })
+
+  it('does not pop a second catcher while one is up', () => {
+    const occ = occupancy({ maxConcurrent: 2, catcherChance: 1 })
+    occ.update(100, 0)
+    occ.update(180, 0)
+    occ.update(180, 0)
     const catchers = () => windows.filter((w) => occ.window(w.id)?.occupant?.defId === 'dogCatcher')
     assert.equal(catchers().length, 1)
     occ.update(200, 0)
     assert.equal(catchers().length, 1)
   })
 
-  it('never shares the triggering lady window', () => {
-    const occ = occupancy({ catcherChance: 1 }, () => 0)
+  it('never shares an occupied lady window', () => {
+    const occ = occupancy({ catcherChance: 1 })
     occ.update(100, 0)
-    occ.update(50, 0)
+    occ.update(180, 0)
     assert.equal(occ.window('a')?.occupant?.defId, 'oldLady')
+    assert.equal(occ.window('b')?.occupant?.defId, 'dogCatcher')
+  })
+
+  it('hides a lone catcher when the last lady starts hiding', () => {
+    const occ = occupancy({ catcherChance: 1, visibleMs: [200, 200] })
+    occ.update(100, 0)
+    occ.update(180, 0)
+    const events = occ.update(20, 0)
+    assert.deepEqual(events, [
+      { kind: 'hide', windowId: 'a', missed: true },
+      { kind: 'hide', windowId: 'b', missed: false },
+    ])
+  })
+
+  it('hides a lone catcher when the last lady leaves', () => {
+    const occ = occupancy({ catcherChance: 1 })
+    occ.update(100, 0)
+    occ.update(180, 0)
+    occ.lock('a')
+    occ.unlock('a')
+    const hidden = occ.update(1, 0)
+    assert.deepEqual(hidden, [{ kind: 'hide', windowId: 'b', missed: false }])
+  })
+
+  it('waits until a lady occupies after the catcher hole ends empty', () => {
+    let i = 0
+    const rng = () => [1, 0][i++] ?? 0
+    const occ = occupancy({ popInterval: [100, 300], catcherChance: 1 }, rng)
+    occ.update(100, 0)
+    assert.equal(occ.window('a')?.occupant, null)
+    assert.equal(occ.window('b')?.occupant, null)
+    occ.update(200, 0)
+    assert.equal(occ.window('a')?.occupant?.defId, 'oldLady')
+    assert.equal(occ.window('b')?.occupant, null)
+    occ.update(180, 0)
     assert.equal(occ.window('b')?.occupant?.defId, 'dogCatcher')
   })
 })

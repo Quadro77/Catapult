@@ -1,6 +1,8 @@
 import type { ScreenWindow } from './geometry.ts'
 import type { OccupantId, OccupantInstance } from './types.ts'
 
+const POP_BEAT = 180
+
 export type OccupancyRules = {
   popInterval: [number, number]
   visibleMs: [number, number]
@@ -26,17 +28,19 @@ export class Occupancy {
   private readonly rng: () => number
   private readonly slots: OccupancySlot[]
   private elapsed = 0
-  private hopAt = 0
+  private ladyHoles: number[] = []
   private catcherAt = 0
-  private catcherQueued = false
-  private catcherLadyId: string | null = null
+  private catcherDue = false
   private lastLadyId: string | null = null
 
   constructor(windows: OccupancyWindow[], rules: OccupancyRules, rng: () => number = Math.random) {
     this.rules = rules
     this.rng = rng
     this.slots = windows.map((w) => ({ ...w, occupant: null, locked: false, hiding: false }))
-    this.hopAt = this.rand(rules.popInterval[0], rules.popInterval[1])
+    for (let i = 0; i < rules.maxConcurrent; i++) {
+      this.ladyHoles.push(this.rand(rules.popInterval[0], rules.popInterval[1]))
+    }
+    this.catcherAt = this.rand(rules.popInterval[0], rules.popInterval[1])
   }
 
   window(id: string): OccupancySlot | undefined {
@@ -77,37 +81,50 @@ export class Occupancy {
     const slot = this.window(id)
     if (!slot) return
     const wasLady = slot.occupant?.defId === 'oldLady'
+    const wasCatcher = slot.occupant?.defId === 'dogCatcher'
     slot.locked = false
     slot.hiding = false
     slot.occupant = null
     if (wasLady) this.scheduleHole()
+    if (wasCatcher) this.scheduleCatcherHole()
   }
 
   finishHide(id: string): boolean {
     const slot = this.window(id)
     if (!slot || slot.locked || !slot.hiding) return false
     const wasLady = slot.occupant?.defId === 'oldLady'
+    const wasCatcher = slot.occupant?.defId === 'dogCatcher'
     slot.occupant = null
     slot.hiding = false
     if (wasLady) this.scheduleHole()
+    if (wasCatcher) this.scheduleCatcherHole()
     return true
   }
 
   update(dt: number, _score = 0): OccupancyEvent[] {
     this.elapsed += dt
     const events = this.expire()
-    if (this.elapsed >= this.hopAt) {
-      while (this.ladyCount() < this.rules.maxConcurrent) {
-        const popped = this.popLady()
-        if (!popped) break
-        events.push(popped)
-      }
-    }
-    if (this.catcherQueued && this.elapsed >= this.catcherAt) {
+    const lone = this.hideLoneCatcher()
+    if (lone) events.push(lone)
+    this.rollCatcherHole()
+    if (this.ladyHoles.some((h) => h <= this.elapsed) && this.ladyCount() < this.rules.maxConcurrent) {
+      const popped = this.popLady()
+      if (popped) events.push(popped)
+    } else {
       const popped = this.popCatcher()
       if (popped) events.push(popped)
     }
     return events
+  }
+
+  private hideLoneCatcher(): OccupancyEvent | null {
+    if (this.occupyingLadies() > 0) return null
+    for (const slot of this.slots) {
+      if (slot.occupant?.defId !== 'dogCatcher' || slot.hiding || slot.locked) continue
+      slot.hiding = true
+      return { kind: 'hide', windowId: slot.id, missed: false }
+    }
+    return null
   }
 
   private expire(): OccupancyEvent[] {
@@ -124,38 +141,35 @@ export class Occupancy {
 
   private popLady(): OccupancyEvent | null {
     if (!this.allows('oldLady')) return null
+    const due = this.ladyHoles.findIndex((h) => h <= this.elapsed)
+    if (due < 0) return null
     const slot = this.pickWindow()
     if (!slot) return null
+    this.ladyHoles.splice(due, 1)
     const stay = this.rand(this.rules.visibleMs[0], this.rules.visibleMs[1])
     slot.occupant = { defId: 'oldLady', windowId: slot.id, until: this.elapsed + stay }
     slot.hiding = false
     this.lastLadyId = slot.id
-    if (!this.catcherQueued && !this.has('dogCatcher') && this.rng() < this.rules.catcherChance) {
-      this.catcherQueued = true
-      this.catcherAt = this.elapsed + this.rand(50, 140)
-      this.catcherLadyId = slot.id
-    }
+    this.delayOtherDue()
     return { kind: 'popped', windowId: slot.id, occupant: 'oldLady' }
   }
 
   private popCatcher(): OccupancyEvent | null {
-    this.catcherQueued = false
+    if (!this.catcherDue || this.elapsed < this.catcherAt) return null
     if (!this.allows('dogCatcher') || this.has('dogCatcher')) return null
-    const lady = this.catcherLadyId ? this.window(this.catcherLadyId) : undefined
-    if (!lady?.occupant || lady.occupant.defId !== 'oldLady') return null
-    const slot = this.pickWindow(lady.id)
+    if (this.occupyingLadies() === 0) return null
+    const slot = this.pickWindow()
     if (!slot) return null
-    slot.occupant = {
-      defId: 'dogCatcher',
-      windowId: slot.id,
-      until: lady.occupant.until + 200,
-    }
+    const stay = this.rand(this.rules.visibleMs[0], this.rules.visibleMs[1])
+    slot.occupant = { defId: 'dogCatcher', windowId: slot.id, until: this.elapsed + stay }
     slot.hiding = false
+    this.catcherDue = false
+    this.delayOtherDue()
     return { kind: 'popped', windowId: slot.id, occupant: 'dogCatcher' }
   }
 
-  private pickWindow(excludeId?: string): OccupancySlot | undefined {
-    const free = (w: OccupancySlot) => !w.occupant && !w.locked && w.id !== excludeId
+  private pickWindow(): OccupancySlot | undefined {
+    const free = (w: OccupancySlot) => !w.occupant && !w.locked
     const fresh = this.slots.filter((w) => free(w) && w.id !== this.lastLadyId)
     const pool = fresh.length > 0 ? fresh : this.slots.filter(free)
     if (pool.length === 0) return undefined
@@ -163,13 +177,31 @@ export class Occupancy {
   }
 
   private scheduleHole(): void {
-    if (this.hopAt <= this.elapsed) {
-      this.hopAt = this.elapsed + this.rand(this.rules.popInterval[0], this.rules.popInterval[1])
-    }
+    this.ladyHoles.push(this.elapsed + this.rand(this.rules.popInterval[0], this.rules.popInterval[1]))
+  }
+
+  private scheduleCatcherHole(): void {
+    this.catcherDue = false
+    this.catcherAt = this.elapsed + this.rand(this.rules.popInterval[0], this.rules.popInterval[1])
+  }
+
+  private rollCatcherHole(): void {
+    if (this.catcherDue || this.has('dogCatcher') || this.elapsed < this.catcherAt) return
+    if (this.rng() < this.rules.catcherChance) this.catcherDue = true
+    else this.catcherAt = this.elapsed + this.rand(this.rules.popInterval[0], this.rules.popInterval[1])
+  }
+
+  private delayOtherDue(): void {
+    this.ladyHoles = this.ladyHoles.map((h) => (h <= this.elapsed ? this.elapsed + POP_BEAT : h))
+    if (this.catcherDue && this.catcherAt <= this.elapsed) this.catcherAt = this.elapsed + POP_BEAT
   }
 
   private ladyCount(): number {
     return this.slots.filter((s) => s.occupant?.defId === 'oldLady').length
+  }
+
+  private occupyingLadies(): number {
+    return this.slots.filter((s) => s.occupant?.defId === 'oldLady' && !s.hiding).length
   }
 
   private has(defId: OccupantId): boolean {

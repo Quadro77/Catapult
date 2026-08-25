@@ -32,9 +32,7 @@ export const COIN_PACKS: CoinPack[] = [
 ]
 
 export const AD_COINS = 150
-export const CATCH_COINS = 20
-export const STREAK_COINS = 8
-export const HEIGHT_COINS = 32
+export const STREAK_COINS = 5
 export const CONTINUE_BASE = 80
 export const CONTINUE_GROWTH = 1.7
 export const MAX_CONTINUES = 3

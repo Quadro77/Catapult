@@ -6,11 +6,9 @@ const rules: RunRules = {
   startLives: 3,
   angerLimit: 3,
   bonusEvery: 2,
-  coinMul: 2,
+  coinMul: 1,
   maxContinues: 3,
-  catchCoins: 20,
-  heightCoins: 32,
-  streakCoins: 8,
+  streakCoins: 5,
 }
 
 function fresh(over: Partial<RunRules> = {}): Run {
@@ -23,34 +21,82 @@ function inFlight(run: Run): void {
 }
 
 describe('catch', () => {
-  it('scores, grows the streak, pays height and the cat multiplier', () => {
+  it('scores, grows the streak, and pays one coin on a nearest first catch', () => {
     const run = fresh()
     inFlight(run)
-    const ev = run.applyOutcome({ outcome: { kind: 'catch', windowId: 'f0b0' }, floor: 0 })
+    const ev = run.applyOutcome({ outcome: { kind: 'catch', windowId: 'f0b0' }, reach: 0 })
     assert.equal(ev.kind, 'catch')
     if (ev.kind !== 'catch') return
     assert.equal(ev.windowId, 'f0b0')
     assert.equal(ev.score, 1)
     assert.equal(ev.streak, 1)
-    assert.equal(ev.payout, 120)
+    assert.equal(ev.payout, 1)
     assert.equal(ev.extraLife, false)
     assert.equal(ev.anger, 0)
-    assert.equal(run.coins, 120)
+    assert.equal(run.coins, 1)
     assert.equal(run.phase, 'resolving')
+  })
+
+  it('pays reach on a farthest first catch', () => {
+    const run = fresh()
+    inFlight(run)
+    const ev = run.applyOutcome({ outcome: { kind: 'catch', windowId: 'tr' }, reach: 20 })
+    assert.equal(ev.kind, 'catch')
+    if (ev.kind !== 'catch') return
+    assert.equal(ev.payout, 20)
+    assert.equal(ev.streak, 1)
+  })
+
+  it('adds five streak coins on the second catch', () => {
+    const run = fresh()
+    inFlight(run)
+    run.applyOutcome({ outcome: { kind: 'catch', windowId: 'a' }, reach: 0 })
+    assert.equal(run.finishResolve().kind, 'reload')
+    inFlight(run)
+    const ev = run.applyOutcome({ outcome: { kind: 'catch', windowId: 'b' }, reach: 0 })
+    assert.equal(ev.kind, 'catch')
+    if (ev.kind !== 'catch') return
+    assert.equal(ev.streak, 2)
+    assert.equal(ev.payout, 5)
+  })
+
+  it('pays reach plus ten streak coins on the third farthest catch', () => {
+    const run = fresh()
+    inFlight(run)
+    run.applyOutcome({ outcome: { kind: 'catch', windowId: 'a' }, reach: 20 })
+    run.finishResolve()
+    inFlight(run)
+    run.applyOutcome({ outcome: { kind: 'catch', windowId: 'b' }, reach: 20 })
+    run.finishResolve()
+    inFlight(run)
+    const ev = run.applyOutcome({ outcome: { kind: 'catch', windowId: 'c' }, reach: 20 })
+    assert.equal(ev.kind, 'catch')
+    if (ev.kind !== 'catch') return
+    assert.equal(ev.streak, 3)
+    assert.equal(ev.payout, 30)
+  })
+
+  it('multiplies reach and streak by the cat before the one-coin minimum', () => {
+    const run = fresh({ coinMul: 2 })
+    inFlight(run)
+    const ev = run.applyOutcome({ outcome: { kind: 'catch', windowId: 'a' }, reach: 20 })
+    assert.equal(ev.kind, 'catch')
+    if (ev.kind !== 'catch') return
+    assert.equal(ev.payout, 40)
   })
 
   it('grants an extra life on the bonus-every catch', () => {
     const run = fresh()
     inFlight(run)
-    run.applyOutcome({ outcome: { kind: 'catch', windowId: 'a' }, floor: 0 })
+    run.applyOutcome({ outcome: { kind: 'catch', windowId: 'a' }, reach: 0 })
     assert.equal(run.finishResolve().kind, 'reload')
     inFlight(run)
-    const ev = run.applyOutcome({ outcome: { kind: 'catch', windowId: 'b' }, floor: 0 })
+    const ev = run.applyOutcome({ outcome: { kind: 'catch', windowId: 'b' }, reach: 0 })
     assert.equal(ev.kind, 'catch')
     if (ev.kind !== 'catch') return
     assert.equal(ev.extraLife, true)
     assert.equal(ev.streak, 2)
-    assert.equal(ev.payout, 136)
+    assert.equal(ev.payout, 5)
     assert.equal(run.lives, 4)
   })
 })
@@ -59,7 +105,7 @@ describe('catcher', () => {
   it('drops a point and kills the streak', () => {
     const run = fresh()
     inFlight(run)
-    run.applyOutcome({ outcome: { kind: 'catch', windowId: 'a' }, floor: 2 })
+    run.applyOutcome({ outcome: { kind: 'catch', windowId: 'a' }, reach: 0 })
     run.finishResolve()
     inFlight(run)
     const ev = run.applyOutcome({ outcome: { kind: 'catcher', windowId: 'x' } })
@@ -69,6 +115,22 @@ describe('catcher', () => {
     assert.equal(ev.score, 0)
     assert.equal(run.streak, 0)
     assert.equal(run.phase, 'resolving')
+  })
+
+  it('pays the next catch as a fresh streak', () => {
+    const run = fresh()
+    inFlight(run)
+    run.applyOutcome({ outcome: { kind: 'catch', windowId: 'a' }, reach: 20 })
+    run.finishResolve()
+    inFlight(run)
+    run.applyOutcome({ outcome: { kind: 'catcher', windowId: 'x' } })
+    run.finishResolve()
+    inFlight(run)
+    const ev = run.applyOutcome({ outcome: { kind: 'catch', windowId: 'b' }, reach: 0 })
+    assert.equal(ev.kind, 'catch')
+    if (ev.kind !== 'catch') return
+    assert.equal(ev.streak, 1)
+    assert.equal(ev.payout, 1)
   })
 })
 
@@ -84,6 +146,22 @@ describe('splat', () => {
     assert.equal(run.phase, 'resolving')
     assert.equal(run.finishResolve().kind, 'reload')
     assert.equal(run.phase, 'idle')
+  })
+
+  it('pays the next catch as a fresh streak', () => {
+    const run = fresh()
+    inFlight(run)
+    run.applyOutcome({ outcome: { kind: 'catch', windowId: 'a' }, reach: 20 })
+    run.finishResolve()
+    inFlight(run)
+    run.applyOutcome({ outcome: { kind: 'splat', reason: 'wall' } })
+    run.finishResolve()
+    inFlight(run)
+    const ev = run.applyOutcome({ outcome: { kind: 'catch', windowId: 'b' }, reach: 20 })
+    assert.equal(ev.kind, 'catch')
+    if (ev.kind !== 'catch') return
+    assert.equal(ev.streak, 1)
+    assert.equal(ev.payout, 20)
   })
 })
 

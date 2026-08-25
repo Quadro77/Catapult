@@ -1,7 +1,7 @@
 import { GAME_WIDTH, RESULT_MS } from '../config.ts'
 import { loadLevel } from '../data/layout.ts'
-import { geometry, type LevelSpace } from '../geometry.ts'
-import { CATCH_COINS, continueCost, HEIGHT_COINS, MAX_CONTINUES, STREAK_COINS } from '../data/shop.ts'
+import { geometry, reach, type LevelSpace } from '../geometry.ts'
+import { continueCost, MAX_CONTINUES, STREAK_COINS } from '../data/shop.ts'
 import { loadout, type Loadout } from '../loadout.ts'
 import { Occupancy, type OccupancySlot } from '../occupancy.ts'
 import { Run, type FailNext, type RunEvent } from '../run.ts'
@@ -62,8 +62,6 @@ export class PlayScene extends Phaser.Scene {
       bonusEvery: this.level.bonusEvery,
       coinMul: this.ready.coinMul,
       maxContinues: MAX_CONTINUES,
-      catchCoins: CATCH_COINS,
-      heightCoins: HEIGHT_COINS,
       streakCoins: STREAK_COINS,
     })
     this.physics.world.gravity.y = this.ready.gravity
@@ -178,7 +176,10 @@ export class PlayScene extends Phaser.Scene {
     const slot =
       outcome.kind === 'catch' || outcome.kind === 'catcher' ? this.occupancy.window(outcome.windowId) : undefined
     if (slot) this.occupancy.lock(slot.id)
-    const ev = this.run.applyOutcome({ outcome, floor: slot?.floor })
+    const ev = this.run.applyOutcome({
+      outcome,
+      reach: slot ? reach(this.space.windows, slot.id) : 0,
+    })
     this.present({ ev, outcome, slot })
   }
 

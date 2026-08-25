@@ -6,8 +6,6 @@ export type RunRules = {
   bonusEvery: number
   coinMul: number
   maxContinues: number
-  catchCoins: number
-  heightCoins: number
   streakCoins: number
 }
 
@@ -96,13 +94,13 @@ export class Run {
     return { kind: 'flight' }
   }
 
-  applyOutcome(input: { outcome: Outcome; floor?: number }): RunEvent {
+  applyOutcome(input: { outcome: Outcome; reach?: number }): RunEvent {
     if (this._phase !== 'flight') return { kind: 'ignored' }
     this._phase = 'resolving'
     const outcome = input.outcome
     switch (outcome.kind) {
       case 'catch':
-        return this.onCatch(outcome.windowId, input.floor ?? 2)
+        return this.onCatch(outcome.windowId, input.reach ?? 0)
       case 'catcher':
         return this.onCatcher(outcome.windowId)
       case 'splat':
@@ -153,13 +151,14 @@ export class Run {
     return { kind: 'over', score: this._score, coins: this._coins }
   }
 
-  private onCatch(windowId: string, floor: number): RunEvent {
+  private onCatch(windowId: string, reach: number): RunEvent {
     this._score += 1
     this._anger = Math.max(0, this._anger - 1)
+    const priorStreak = this._streak
     this._streak += 1
-    const height = Math.round(((2 - floor) / 2) * this.rules.heightCoins)
-    const payout = Math.round(
-      (this.rules.catchCoins + height + this._streak * this.rules.streakCoins) * this.rules.coinMul,
+    const payout = Math.max(
+      1,
+      Math.round((reach + priorStreak * this.rules.streakCoins) * this.rules.coinMul),
     )
     this._coins += payout
     const every = this.rules.bonusEvery

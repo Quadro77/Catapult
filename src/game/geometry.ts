@@ -65,6 +65,23 @@ export function geometry(level: GeometryInput): LevelSpace {
   }
 }
 
+export function reach(windows: ScreenWindow[], windowId: string): number {
+  const hit = windows.find((w) => w.id === windowId)
+  if (!hit || windows.length === 0) return 0
+  const centers = windows.map((w) => ({ x: w.x + w.w / 2, y: w.y + w.h / 2 }))
+  const xs = centers.map((c) => c.x)
+  const ys = centers.map((c) => c.y)
+  const minX = Math.min(...xs)
+  const maxX = Math.max(...xs)
+  const minY = Math.min(...ys)
+  const maxY = Math.max(...ys)
+  const cx = hit.x + hit.w / 2
+  const cy = hit.y + hit.h / 2
+  const across = maxX === minX ? 0 : ((cx - minX) / (maxX - minX)) * 10
+  const up = maxY === minY ? 0 : ((maxY - cy) / (maxY - minY)) * 10
+  return Math.round(across + up)
+}
+
 export function toWindowDefs(
   windows: ScreenWindow[],
   building: { x: number; y: number; w: number; h: number },
